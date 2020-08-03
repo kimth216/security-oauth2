@@ -1,6 +1,7 @@
 plugins {
     id 'org.springframework.boot' version '2.3.2.RELEASE'
     id 'io.spring.dependency-management' version '1.0.9.RELEASE'
+    id 'com.ewerk.gradle.plugins.querydsl' version '1.0.10'
     id 'java'
 }
 
@@ -8,29 +9,80 @@ group = 'com.oauth2'
 version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
+def querydslSrcDir = 'src/main/generated'
+
+querydsl {
+    library = "com.querydsl:querydsl-apt"
+    jpa = true
+    querydslSourcesDir = querydslSrcDir
+}
+
+sourceSets { main { java { srcDirs = ['src/main/java', querydslSrcDir] } } }
+
+compileQuerydsl { options.annotationProcessorPath = configurations.querydsl }
+
 configurations {
     compileOnly {
         extendsFrom annotationProcessor
+        querydsl.extendsFrom compileClasspath
     }
 }
 
+configurations.all {
+    exclude group: 'org.springframework.boot', module: 'spring-boot-starter-tomcat'
+    exclude group: 'io.undertow', module: 'undertow-websockets-jsr'
+}
+
+ext { set('springBootAdminVersion', '2.1.5') }
+
 repositories {
     mavenCentral()
+    //  maven { url "https://repo.spring.io/milestone" }
+    maven { url 'https://repo.spring.io/snapshot' }
 }
 
 dependencies {
-    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-    implementation 'org.springframework.boot:spring-boot-starter-web'
     compileOnly 'org.projectlombok:lombok'
-    runtimeOnly 'com.h2database:h2'
     annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+    implementation 'org.springframework.boot:spring-boot-starter-web'
     testImplementation 'org.springframework.security:spring-security-test'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+    implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+
+    dependencies {
+        compile 'org.springframework.security.oauth.boot:spring-security-oauth2-autoconfigure:2.0.1.BUILD-SNAPSHOT'
+    }
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.4.1'
+    implementation 'javax.servlet:javax.servlet-api:4.0.1'
+    implementation 'javax.xml.bind:jaxb-api'
+    implementation 'org.hibernate:hibernate-envers:5.4.2.Final'
+    implementation 'com.querydsl:querydsl-jpa'
+    implementation 'com.auth0:java-jwt:3.8.0'
+    implementation 'org.modelmapper:modelmapper:2.1.1'
+    implementation 'org.modelmapper.extensions:modelmapper-spring:2.1.1'
+    implementation 'org.modelmapper.extensions:modelmapper-jackson:2.1.1'
+    implementation 'io.springfox:springfox-swagger2:2.9.2'
+    implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+    compile "io.springfox:springfox-bean-validators:2.9.2"
+    implementation 'org.apache.commons:commons-collections4:4.3'
+    implementation 'org.apache.commons:commons-lang3:3.9'
+    implementation 'org.springframework.boot:spring-boot-starter-undertow'
+    implementation 'com.google.code.gson:gson:2.8.6'
+    compileOnly 'com.querydsl:querydsl-apt'
+    runtimeOnly 'org.springframework.boot:spring-boot-starter-undertow'
 }
 
-test {
-    useJUnitPlatform()
+dependencyManagement {
+    imports {
+        mavenBom "de.codecentric:spring-boot-admin-dependencies:${springBootAdminVersion}"
+    }
 }

@@ -1,0 +1,61 @@
+spring:
+  profiles:
+    active: local
+  jackson:
+      serialization:
+        WRITE_DATES_AS_TIMESTAMPS: false
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+        use_sql_comments: true
+    open-in-view: false
+
+
+
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    platform: org.hibernate.dialect.MariaDB103Dialect
+    url: jdbc:mariadb://localhost:3306/oauth2_spring?useMysqlMetadata=true
+    username: oauth2_spring
+    password: 1234
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org:
+      hibernate:
+        type: trace
+
+
+facebook:
+  client:
+    clientId: <your-client-id>
+    clientSecret: <your-secret>
+    accessTokenUri: https://graph.facebook.com/oauth/access_token
+    userAuthorizationUri: https://www.facebook.com/dialog/oauth
+    tokenName: oauth_token
+    authenticationScheme: query
+    clientAuthenticationScheme: form
+  resource:
+    userInfoUri: https://graph.facebook.com/me?fields=id, name, email, picture
+
+google :
+  client :
+    clientId : 519417382057-m1lljnbbi0e9agkcbiai4pse41uhkdvu.apps.googleusercontent.com
+    clientSecret: tGKkUKYcWGxwmLOBVHhEGRtF
+    accessTokenUri: https://www.googleapis.com/oauth2/v4/token
+    userAuthorizationUri: https://accounts.google.com/o/oauth2/v2/auth
+    clientAuthenticationScheme: form
+    scope:
+    - email
+    - profile
+  resource:
+    userInfoUri: https://www.googleapis.com/oauth2/v3/userinfo
+
+server:
+  port: 8080
